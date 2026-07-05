@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model roles {
+  id         String   @id @db.Uuid
+  role_name  String   @db.VarChar(50)
+  is_active  Boolean? @default(true)
+  usr_crt    String?  @db.Uuid
+  usr_upd    String?  @db.Uuid
+  dtm_crt    DateTime @default(now()) @db.Timestamp(6)
+  dtm_upd    String   @default(dbgenerated("now()"))
+
+  members members[]
+}
+
+model teams {
+  id        String   @id @db.Uuid
+  team_name String   @db.VarChar(25)
+  team_desc String?
+  is_active Boolean? @default(true)
+  usr_crt   String?  @db.Uuid
+  usr_upd   String?  @db.Uuid
+  dtm_crt   DateTime @default(now()) @db.Timestamp(6)
+  dtm_upd   String   @default(dbgenerated("now()"))
+
+  teams_members teams_members[]
+}
+
+model members {
+  id           String   @id @db.Uuid
+  member_name  String   @db.VarChar(25)
+  member_email String   @unique @db.VarChar(50)
+  role_id      String  @db.Uuid
+  avatar       String?  @db.VarChar(255)
+  is_active    Boolean? @default(true)
+  usr_crt      String?  @db.Uuid
+  usr_upd      String?  @db.Uuid
+  dtm_crt      DateTime @default(now()) @db.Timestamp(6)
+  dtm_upd      String   @default(dbgenerated("now()"))
+
+  role          roles          @relation(fields: [role_id], references: [id])
+  teams_members teams_members[]
+}
+
+model teams_members {
+  id        String   @id @db.Uuid
+  team_id   String   @db.Uuid
+  member_id String   @db.Uuid
+  is_active Boolean? @default(true)
+  usr_crt   String?  @db.Uuid
+  usr_upd   String?  @db.Uuid
+  dtm_crt   DateTime @default(now()) @db.Timestamp(6)
+  dtm_upd   String   @default(dbgenerated("now()"))
+
+  team   teams   @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  member members @relation(fields: [member_id], references: [id], onDelete: Cascade)
+
+  @@unique([team_id, member_id])
+}
