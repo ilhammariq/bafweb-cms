@@ -43,7 +43,6 @@ async function getMembers(req, res) {
             },
             take: search ? 10 : undefined,
         });
-
         const formattedMembers = members.map((m) => ({
             id: m.id,
             name: m.member_name,
@@ -52,7 +51,8 @@ async function getMembers(req, res) {
             team: m.teams_members.map((tm) => tm.team?.team_name).filter(Boolean),
             status: m.is_active ? "active" : "inactive",
             joinedAt: formatDate(m.dtm_crt),
-            avatar: m.avatar || m.member_name.charAt(0).toUpperCase(),
+            avatar: m.avatar,
+            avatarIndex: m.avatar_index
         }));
 
         return res.status(200).json(formattedMembers);
@@ -65,7 +65,7 @@ async function getMembers(req, res) {
 
 async function createMember(req, res) {
     try {
-        const { memberName, memberEmail, memberRole } = req.body;
+        const { memberName, memberEmail, memberRole, memberAvatarIndex } = req.body;
 
         if (!memberName || !memberEmail || !memberRole) {
             return res.status(400).json({
@@ -90,8 +90,10 @@ async function createMember(req, res) {
                 id: randomUUID(),
                 member_name: memberName.trim(),
                 member_email: memberEmail.trim().toLowerCase(),
+                avatar: "",
                 role_id: memberRole,
                 is_active: true,
+                avatar_index: memberAvatarIndex,
             },
         });
 

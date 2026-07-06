@@ -1,12 +1,18 @@
-export const avatarColors = ['bg-teal-600', 'bg-indigo-600', 'bg-amber-600', 'bg-rose-600', 'bg-violet-600']
+export const AvatarColors = ['bg-teal-600', 'bg-indigo-600', 'bg-amber-600', 'bg-rose-600', 'bg-violet-600']
 
-export function Avatar({ name, letter, index }) {
+const getInitials = (name) => {
+    const parts = name.trim().split(' ').filter(Boolean)
+    if (parts.length === 0) return ''
+    return parts.map((p) => p[0]).join('').toUpperCase()
+}
+
+export function Avatar({ name, avatar, avatarIndex }) {
     return (
         <div
             title={name}
-            className={`w-9 h-9 rounded-full ${avatarColors[index % avatarColors.length]} text-white text-sm font-semibold flex items-center justify-center shrink-0`}
+            className={`w-9 h-9 rounded-full ${AvatarColors[avatarIndex]} text-white text-sm font-semibold flex items-center justify-center shrink-0`}
         >
-            {letter}
+            {avatar ? <img src={avatar} alt={name}/> : getInitials(name)}
         </div>
     )
 }
@@ -19,11 +25,11 @@ export function AvatarStack({ members }) {
         <div className="flex items-center">
             {visible.map((member, i) => (
                 <div
-                    key={member.name}
+                    key={i}
                     title={member.name}
-                    className={`w-8 h-8 rounded-full ${avatarColors[i % avatarColors.length]} text-white text-xs font-semibold flex items-center justify-center ring-2 ring-white -ml-2 first:ml-0`}
+                    className={`w-8 h-8 rounded-full ${AvatarColors[member.avatarIndex]} text-white text-xs font-semibold flex items-center justify-center ring-2 ring-white -ml-2 first:ml-0`}
                 >
-                    {member.avatar}
+                    {member.avatar ? <img src={member.avatar} alt={member.name} /> : getInitials(member.name)}
                 </div>
             ))}
             {remaining > 0 && (

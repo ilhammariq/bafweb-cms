@@ -77,14 +77,14 @@ export default function Member() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredMembers.map((member, index) => (
+                                {filteredMembers.map((member) => (
                                     <tr
                                         key={member.id}
                                         className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 transition-colors"
                                     >
                                         <td className="px-5 py-3.5">
                                             <div className="flex items-center gap-3">
-                                                <Avatar name={member.name} letter={member.avatar} index={index} />
+                                                <Avatar name={member.name} avatar={member.avatar} avatarIndex={member.avatarIndex} />
                                                 <div className="min-w-0">
                                                     <p className="font-medium text-slate-900 truncate">
                                                         {member.name}

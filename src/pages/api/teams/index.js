@@ -16,14 +16,15 @@ export default async function handler(req, res) {
                 },
             });
 
-            // Mapping ke format sesuai spec JSON
             const formattedTeams = teams.map((team) => ({
                 id: team.id,
                 name: team.team_name,
                 description: team.team_desc,
                 members: team.teams_members.map((tm) => ({
+                    id: tm.member.id,
                     name: tm.member.member_name,
-                    avatar: tm.member.avatar || tm.member.member_name.charAt(0).toUpperCase(),
+                    avatar: tm.member.avatar,
+                    avatarIndex: tm.member.avatar_index
                 })),
                 status: team.is_active ? 'active' : 'inactive',
                 createdAt: formatDate(team.dtm_crt),
@@ -36,16 +37,38 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { team_name, team_desc } = req.body;
+        const { teamName, teamDescription, members = [] } = req.body;
+
+        console.log(members)
+
+        if (!teamName) {
+            return res.status(400).json({ error: 'Nama tim wajib diisi.' });
+        }
+
         try {
-            const newTeam = await prisma.teams.create({
-                data: {
-                    id: crypto.randomUUID(),
-                    team_name: team_name,
-                    team_desc: team_desc,
-                },
+            const result = await prisma.$transaction(async (tx) => {
+                const newTeam = await tx.teams.create({
+                    data: {
+                        id: crypto.randomUUID(),
+                        team_name: teamName,
+                        team_desc: teamDescription,
+                    },
+                });
+
+                if (members.length > 0) {
+                    await tx.teams_members.createMany({
+                        data: members.map((member) => ({
+                            id: crypto.randomUUID(),
+                            team_id: newTeam.id,
+                            member_id: member.id,
+                        })),
+                    });
+                }
+
+                return newTeam;
             });
-            return res.status(201).json(newTeam);
+
+            return res.status(201).json(result);
         } catch (error) {
             return res.status(400).json({ error: error.message });
         }

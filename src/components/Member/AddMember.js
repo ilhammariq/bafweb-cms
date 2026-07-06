@@ -1,10 +1,12 @@
-import { useForm } from '@tanstack/react-form'
+import { useForm, useStore } from '@tanstack/react-form'
 import { requiredField, email } from '../Form/Validator/Validator'
 import { useRoles } from '@/hooks/useRole'
 import TextInput from '../Form/Fields/TextInput';
 import Select from '../Form/Fields/Select';
 import FormField from '../Form/Fields/FormField';
 import { useCreateMember } from '@/hooks/useMember';
+import { AvatarColors } from '../Common/Avatar';
+import { useEffect } from 'react';
 
 const staticFields = [
     {
@@ -42,6 +44,8 @@ export default function AddMember() {
             memberName: '',
             memberEmail: '',
             memberRole: '',
+            memberAvatar: '',
+            memberAvatarIndex: ''
         },
         onSubmit: async ({ value }) => {
             createMember(value, {
@@ -54,6 +58,20 @@ export default function AddMember() {
             });
         },
     })
+
+    const memberName = useStore(form.store, (state) => state.values.memberName)
+
+    useEffect(() => {
+        const trimmed = memberName?.trim() ?? ''
+        if (!trimmed) {
+            form.setFieldValue('memberAvatarIndex', '')
+            return
+        }
+        console.log(trimmed.length, AvatarColors.length)
+
+        const index = trimmed.length % AvatarColors.length
+        form.setFieldValue('memberAvatarIndex', index)
+    }, [memberName])
 
     const roleOptions = roles.map((role) => ({
         value: role.id,
