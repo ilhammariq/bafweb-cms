@@ -65,7 +65,7 @@ export default function ActionsMenu({ onEdit, onDelete, onDetail }) {
                 <MoreVertical size={18} />
             </button>
 
-            {open && (
+            {/* {open && (
                 <div
                     ref={menuRef}
                     style={{ position: "fixed", top: coords.top, left: coords.left }}
@@ -106,7 +106,7 @@ export default function ActionsMenu({ onEdit, onDelete, onDetail }) {
                         Hapus
                     </button>
                 </div>
-            )}
+            )} */}
         </>
     );
 }

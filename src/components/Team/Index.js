@@ -23,7 +23,7 @@ function TeamCard({ team, onAddMember }) {
             </div>
 
             <div className="flex items-center justify-between mt-5">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                     <AvatarStack members={team.members} />
                     <button
                         type="button"
@@ -54,7 +54,6 @@ function AddMemberModal({ team, onClose }) {
     const { data: searchResults = [], isFetching: isSearching } = useSearchMembers(searchTerm)
     const { mutate: addMembers, isPending } = useAddMemberTeam(team.id)
 
-    console.log(team.members)
     const existingIds = new Set(team.members.map((m) => m.id))
     const selectedIds = new Set(selected.map((m) => m.id))
 

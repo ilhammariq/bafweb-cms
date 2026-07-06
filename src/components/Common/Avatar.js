@@ -22,7 +22,7 @@ export function AvatarStack({ members }) {
     const remaining = members.length - visible.length
 
     return (
-        <div className="flex items-center">
+        <div className="flex items-center mr-2">
             {visible.map((member, i) => (
                 <div
                     key={i}

@@ -39,8 +39,6 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         const { teamName, teamDescription, members = [] } = req.body;
 
-        console.log(members)
-
         if (!teamName) {
             return res.status(400).json({ error: 'Nama tim wajib diisi.' });
         }

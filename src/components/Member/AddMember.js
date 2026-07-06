@@ -67,7 +67,6 @@ export default function AddMember() {
             form.setFieldValue('memberAvatarIndex', '')
             return
         }
-        console.log(trimmed.length, AvatarColors.length)
 
         const index = trimmed.length % AvatarColors.length
         form.setFieldValue('memberAvatarIndex', index)
