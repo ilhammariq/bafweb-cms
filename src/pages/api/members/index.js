@@ -28,26 +28,35 @@ async function getMembers(req, res) {
             }
             : undefined;
 
-        const members = await prisma.members.findMany({
-            where,
-            include: {
-                role: true,
-                teams_members: {
-                    include: {
-                        team: true,
+        const [members, roleSettings] = await Promise.all([
+            prisma.members.findMany({
+                where,
+                include: {
+                    teams_members: {
+                        include: {
+                            team: true,
+                        },
                     },
                 },
-            },
-            orderBy: {
-                dtm_crt: "desc",
-            },
-            take: search ? 10 : undefined,
-        });
+                orderBy: {
+                    dtm_crt: "desc",
+                },
+                take: search ? 10 : undefined,
+            }),
+            prisma.general_setting.findMany({
+                where: { general_setting_type_code: "ROLES" },
+            }),
+        ]);
+
+        const roleMap = Object.fromEntries(
+            roleSettings.map((r) => [r.general_setting_code, r.general_setting_desc])
+        );
+
         const formattedMembers = members.map((m) => ({
             id: m.id,
             name: m.member_name,
             email: m.member_email,
-            role: m.role?.role_name || null,
+            role: roleMap[m.role] ?? m.role,
             team: m.teams_members.map((tm) => tm.team?.team_name).filter(Boolean),
             status: m.is_active ? "active" : "inactive",
             joinedAt: formatDate(m.dtm_crt),
@@ -91,7 +100,7 @@ async function createMember(req, res) {
                 member_name: memberName.trim(),
                 member_email: memberEmail.trim().toLowerCase(),
                 avatar: "",
-                role_id: memberRole,
+                role: memberRole,
                 is_active: true,
                 avatar_index: memberAvatarIndex,
             },

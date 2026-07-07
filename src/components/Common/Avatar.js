@@ -18,6 +18,8 @@ export function Avatar({ name, avatar, avatarIndex }) {
 }
 
 export function AvatarStack({ members }) {
+    if (!members || members.length == 0) return null;
+
     const visible = members.slice(0, 3)
     const remaining = members.length - visible.length
 

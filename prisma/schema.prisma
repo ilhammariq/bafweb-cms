@@ -8,17 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model roles {
-  id        String    @id @db.Uuid
-  role_name String    @db.VarChar(50)
-  is_active Boolean?  @default(true)
-  usr_crt   String?   @db.Uuid
-  usr_upd   String?   @db.Uuid
-  dtm_crt   DateTime  @default(now()) @db.Timestamp(6)
-  dtm_upd   String    @default(dbgenerated("now()"))
-  members   members[]
-}
-
 model teams {
   id            String          @id @db.Uuid
   team_name     String          @db.VarChar(25)
@@ -27,7 +16,7 @@ model teams {
   usr_crt       String?         @db.Uuid
   usr_upd       String?         @db.Uuid
   dtm_crt       DateTime        @default(now()) @db.Timestamp(6)
-  dtm_upd       String          @default(dbgenerated("now()"))
+  dtm_upd       DateTime        @default(now()) @updatedAt @db.Timestamp(6)
   teams_members teams_members[]
 }
 
@@ -40,10 +29,9 @@ model members {
   usr_crt       String?         @db.Uuid
   usr_upd       String?         @db.Uuid
   dtm_crt       DateTime        @default(now()) @db.Timestamp(6)
-  dtm_upd       String          @default(dbgenerated("now()"))
-  role_id       String          @db.Uuid
+  dtm_upd       DateTime        @default(now()) @updatedAt @db.Timestamp(6)
+  role          String          @db.VarChar(25)
   avatar_index  Int?
-  role          roles           @relation(fields: [role_id], references: [id])
   teams_members teams_members[]
 }
 
@@ -55,9 +43,69 @@ model teams_members {
   usr_crt   String?  @db.Uuid
   usr_upd   String?  @db.Uuid
   dtm_crt   DateTime @default(now()) @db.Timestamp(6)
-  dtm_upd   String   @default(dbgenerated("now()"))
+  dtm_upd   DateTime @default(now()) @updatedAt @db.Timestamp(6)
   member    members  @relation(fields: [member_id], references: [id], onDelete: Cascade)
   team      teams    @relation(fields: [team_id], references: [id], onDelete: Cascade)
 
   @@unique([team_id, member_id])
+}
+
+model general_setting_type {
+  id                        String             @id @db.Uuid
+  general_setting_type_code String             @unique @db.VarChar(25)
+  general_setting_type_desc String             @db.VarChar(255)
+  is_active                 Boolean?           @default(true)
+  usr_crt                   String?            @db.Uuid
+  usr_upd                   String?            @db.Uuid
+  dtm_crt                   DateTime           @default(now()) @db.Timestamp(6)
+  dtm_upd                   DateTime           @default(now()) @updatedAt @db.Timestamp(6)
+
+  general_settings          general_setting[]
+}
+
+model general_setting {
+  id                        String   @id @db.Uuid
+  general_setting_type_code String   @db.VarChar(25)
+  general_setting_code      String   @db.VarChar(25)
+  general_setting_desc      String   @db.VarChar(255)
+  is_active                 Boolean? @default(true)
+  usr_crt                   String?  @db.Uuid
+  usr_upd                   String?  @db.Uuid
+  dtm_crt                   DateTime @default(now()) @db.Timestamp(6)
+  dtm_upd                   DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  general_setting_type      general_setting_type @relation(fields: [general_setting_type_code], references: [general_setting_type_code])
+
+  @@unique([general_setting_type_code, general_setting_code])
+}
+
+model events {
+  id            String          @id @db.Uuid
+  event_title   String          @db.VarChar(255)
+  category_code String          @db.VarChar(25)
+  location      String          @db.VarChar(255)
+  latitude      Decimal?        @db.Decimal(9, 6)
+  longitude     Decimal?        @db.Decimal(9, 6)
+  is_active     Boolean?        @default(true)
+  usr_crt       String?         @db.Uuid
+  usr_upd       String?         @db.Uuid
+  dtm_crt       DateTime        @default(now()) @db.Timestamp(6)
+  dtm_upd       DateTime        @default(now()) @updatedAt @db.Timestamp(6)
+
+  event_sessions event_sessions[]
+}
+
+model event_sessions {
+  id         String   @id @db.Uuid
+  event_id   String   @db.Uuid
+  event_date DateTime @db.Date
+  start_time DateTime @db.Time(6)
+  end_time   DateTime? @db.Time(6)
+  is_active  Boolean? @default(true)
+  usr_crt    String?  @db.Uuid
+  usr_upd    String?  @db.Uuid
+  dtm_crt    DateTime @default(now()) @db.Timestamp(6)
+  dtm_upd    DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  event      events   @relation(fields: [event_id], references: [id], onDelete: Cascade)
 }

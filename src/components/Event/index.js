@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import {
     CalendarDays,
     Search,
-    Plus,
     MapPin,
     Clock,
     Users,
-    ChevronDown,
     CalendarX,
     Dumbbell,
     Palmtree,
@@ -14,7 +12,9 @@ import {
     Mountain,
     Music,
     Tag,
+    Plus,
 } from 'lucide-react';
+import Link from 'next/link';
 
 const statusEvents = ['Upcoming', 'Ongoing', 'Past'];
 
@@ -189,19 +189,22 @@ export default function Event() {
 
     return (
         <div className="min-h-screen bg-slate-50 py-10 px-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-xl font-semibold text-gray-900">Event</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">
+                    <h1 className="text-2xl font-bold text-slate-900">Event</h1>
+                    <p className="text-sm text-slate-500 mt-1">
                         Manage and track all events.
                     </p>
                 </div>
-                <button className="inline-flex items-center gap-1.5 bg-gray-900 text-white text-sm font-medium rounded-lg px-4 py-2 hover:bg-gray-800 transition">
-                    <Plus className="w-4 h-4" />
-                    Add event
-                </button>
+                <Link
+                    href="/event/add"
+                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm"
+                >
+                    <Plus size={18} />
+                    Add Event
+                </Link>
             </div>
-
+            
             <div className="relative mb-6">
                 <Search
                     size={18}

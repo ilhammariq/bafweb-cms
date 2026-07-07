@@ -1,12 +1,12 @@
 import { useForm, useStore } from '@tanstack/react-form'
 import { requiredField, email } from '../Form/Validator/Validator'
-import { useRoles } from '@/hooks/useRole'
 import TextInput from '../Form/Fields/TextInput';
 import Select from '../Form/Fields/Select';
 import FormField from '../Form/Fields/FormField';
 import { useCreateMember } from '@/hooks/useMember';
 import { AvatarColors } from '../Common/Avatar';
 import { useEffect } from 'react';
+import { useGeneralSetting } from '@/hooks/useGeneralSetting';
 
 const staticFields = [
     {
@@ -36,7 +36,7 @@ const staticFields = [
 ]
 
 export default function AddMember() {
-    const { data: roles = [], isLoading: isRoleLoading, } = useRoles();
+    const { data: roleSettings, isLoading: isRoleLoading } = useGeneralSetting('ROLES');
     const {mutate: createMember, isPending: isSubmitting} = useCreateMember();
 
     const form = useForm({
@@ -72,9 +72,9 @@ export default function AddMember() {
         form.setFieldValue('memberAvatarIndex', index)
     }, [memberName])
 
-    const roleOptions = roles.map((role) => ({
-        value: role.id,
-        label: role.name,
+    const roleOptions = roleSettings?.map((role) => ({
+        value: role.code,
+        label: role.desc,
     }))
 
     return (
