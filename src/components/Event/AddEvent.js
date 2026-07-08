@@ -64,7 +64,7 @@ export default function AddEvent() {
                 ...value,
                 sessions: value.sessions.map((session) => ({
                     startTime: session.startTime,
-                    endTime: session.isOpenEnded ? null : (session.endTime || null),
+                    endTime: session.isOpenEnded ? null : session.endTime,
                 })),
             }
 
@@ -116,29 +116,27 @@ export default function AddEvent() {
 
                 <form.Field name="sessions" mode="array">
                     {(sessionsField) => (
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-medium text-gray-700">Sesi Waktu</label>
                                 <button
                                     type="button"
                                     onClick={() => sessionsField.pushValue(emptySession())}
-                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+                                    className="text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
                                 >
-                                    <span className="text-base leading-none">+</span> Tambah Sesi
+                                    + Tambah Sesi
                                 </button>
                             </div>
 
-                            <div className="space-y-2">
-                                {sessionsField.state.value.map((_, index) => (
-                                    <SessionRow
-                                        key={index}
-                                        form={form}
-                                        index={index}
-                                        onRemove={() => sessionsField.removeValue(index)}
-                                        canRemove={sessionsField.state.value.length > 1}
-                                    />
-                                ))}
-                            </div>
+                            {sessionsField.state.value.map((_, index) => (
+                                <SessionRow
+                                    key={index}
+                                    form={form}
+                                    index={index}
+                                    onRemove={() => sessionsField.removeValue(index)}
+                                    canRemove={sessionsField.state.value.length > 1}
+                                />
+                            ))}
                         </div>
                     )}
                 </form.Field>
@@ -163,71 +161,58 @@ function SessionRow({ form, index, onRemove, canRemove }) {
     )
 
     return (
-        <div className="flex items-start gap-2 bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <span className="mt-2.5 text-xs font-medium text-gray-400 w-4 shrink-0">
-                {index + 1}
-            </span>
-
-            <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                    <form.Field name={`sessions[${index}].startTime`} validators={requiredField('Waktu Mulai')}>
-                        {(field) => (
-                            <input
-                                type="time"
-                                value={field.state.value}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                                onBlur={field.handleBlur}
-                                className="flex-1 min-w-0 border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        )}
-                    </form.Field>
-
-                    <span className="text-sm text-gray-400 shrink-0">s/d</span>
-
-                    <form.Field name={`sessions[${index}].endTime`}>
-                        {(field) => (
-                            <input
-                                type="time"
-                                value={field.state.value}
-                                disabled={isOpenEnded}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                                onBlur={field.handleBlur}
-                                className="flex-1 min-w-0 border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
-                            />
-                        )}
-                    </form.Field>
-
-                    {canRemove && (
-                        <button
-                            type="button"
-                            onClick={onRemove}
-                            className="shrink-0 text-gray-400 hover:text-red-500 cursor-pointer p-1"
-                            aria-label="Hapus sesi"
-                        >
-                            ✕
-                        </button>
-                    )}
-                </div>
-
-                <form.Field name={`sessions[${index}].isOpenEnded`}>
-                    {(field) => (
-                        <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                checked={field.state.value}
-                                onChange={(e) => {
-                                    field.handleChange(e.target.checked)
-                                    if (e.target.checked) {
-                                        form.setFieldValue(`sessions[${index}].endTime`, '')
-                                    }
-                                }}
-                                className="w-3.5 h-3.5 accent-blue-600 cursor-pointer"
-                            />
-                            Sampai selesai
-                        </label>
-                    )}
-                </form.Field>
+        <div className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-500">Sesi {index + 1}</span>
+                {canRemove && (
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        className="text-xs text-red-500 hover:text-red-600 cursor-pointer"
+                    >
+                        Hapus
+                    </button>
+                )}
             </div>
+
+            <div className="grid grid-cols-2 gap-3">
+                <FormField
+                    form={form}
+                    name={`sessions[${index}].startTime`}
+                    label="Waktu Mulai"
+                    validators={requiredField('Waktu Mulai')}
+                >
+                    <TextInput type="time" />
+                </FormField>
+
+                <FormField
+                    form={form}
+                    name={`sessions[${index}].endTime`}
+                    label="Waktu Selesai"
+                    validators={isOpenEnded ? undefined : requiredField('Waktu Selesai')}
+                >
+                    <TextInput type="time" disabled={isOpenEnded} />
+                </FormField>
+            </div>
+
+            <form.Field name={`sessions[${index}].isOpenEnded`}>
+                {(field) => (
+                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={field.state.value}
+                            onChange={(e) => {
+                                field.handleChange(e.target.checked)
+                                if (e.target.checked) {
+                                    form.setFieldValue(`sessions[${index}].endTime`, '')
+                                }
+                            }}
+                            className="w-4 h-4 accent-blue-600 cursor-pointer"
+                        />
+                        Sampai selesai
+                    </label>
+                )}
+            </form.Field>
         </div>
     )
 }
