@@ -4,7 +4,7 @@ import TextInput from '../Form/Fields/TextInput'
 import Select from '../Form/Fields/Select'
 import FormField from '../Form/Fields/FormField'
 import { PlusCircle, Trash2 } from 'lucide-react'
-// import { useCreateEvent } from '@/hooks/useEvent'
+import { useCreateEvent } from '@/hooks/useEvent'
 import { useGeneralSetting } from '@/hooks/useGeneralSetting'
 
 // ===== Field statis (tanpa eventDate) =====
@@ -37,7 +37,7 @@ const staticFields = [
 
 // ===== Sesi kosong (dengan date) =====
 const emptySession = () => ({
-    date: '',
+    eventDate: '',
     startTime: '',
     endTime: '',
     isOpenEnded: false,
@@ -46,31 +46,24 @@ const emptySession = () => ({
 export default function AddEvent() {
     const { data: categorySettings, isLoading: isCategoryLoading } =
         useGeneralSetting('CATEGORY_EVENT')
-    const { data: statusSettings, isLoading: isStatusLoading } =
-        useGeneralSetting('STATUS_EVENT')
-    // const { mutate: createEvent, isPending: isSubmitting } = useCreateEvent()
+    const { mutate: createEvent, isPending: isSubmitting, error: submitError } = useCreateEvent()
 
     const form = useForm({
         defaultValues: {
             eventTitle: '',
             categoryCode: '',
             location: '',
+            latitude: null,
+            longitude: null,
+            eventDesc: '',
             sessions: [emptySession()],
         },
         onSubmit: async ({ value }) => {
-            const payload = {
-                ...value,
-                sessions: value.sessions.map((session) => ({
-                    date: session.date,
-                    startTime: session.startTime,
-                    endTime: session.endTime,
-                })),
-            }
-            console.log(payload)
-            // createEvent(payload, {
-            //   onSuccess: () => form.reset(),
-            //   onError: (error) => console.error(error.message),
-            // })
+
+            createEvent(value, {
+                onSuccess: () => form.reset(),
+                onError: (error) => console.error(error.message),
+            })
         },
     })
 
@@ -143,13 +136,18 @@ export default function AddEvent() {
                     )}
                 </form.Field>
 
+                {/* Pesan error submit */}
+                {submitError && (
+                    <p className="text-sm text-red-600">{submitError.message}</p>
+                )}
+
                 {/* Tombol Submit */}
                 <button
                     type="submit"
-                    // disabled={isCategoryLoading || isStatusLoading || isSubmitting}
+                    disabled={isCategoryLoading || isSubmitting}
                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Simpan
+                    {isSubmitting ? 'Menyimpan...' : 'Simpan'}
                 </button>
             </form>
         </div>
@@ -187,11 +185,11 @@ function SessionRow({ form, index, onRemove, canRemove }) {
             {/* Tanggal */}
             <FormField
                 form={form}
-                name={`sessions[${index}].date`}
+                name={`sessions[${index}].eventDate`}
                 label="Tanggal Sesi"
                 validators={requiredField('Tanggal Sesi')}
             >
-                <TextInput type="date"/>
+                <TextInput type="date" />
             </FormField>
 
             {/* Waktu Mulai & Selesai */}

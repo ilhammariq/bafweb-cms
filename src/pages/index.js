@@ -32,48 +32,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Grid Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {cards.map((card, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">{card.title}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">{card.value}</p>
-            </div>
-            <div className={`p-3 rounded-lg text-white ${card.color}`}>
-              {card.icon}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Grafik Batang Native CSS/Tailwind */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-800 mb-6">Grafik Penjualan Bulanan (Native)</h2>
-
-        {/* Kontainer Utama Grafik */}
-        <div className="flex items-end justify-between h-64 pt-4 border-b border-l border-gray-200 px-2 sm:px-6">
-          {dataGrafik.map((bar, idx) => (
-            <div key={idx} className="flex flex-col items-center w-full group relative">
-
-              {/* Tooltip Kustom Saat Hover */}
-              <div className="absolute bottom-full mb-2 bg-slate-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                {bar.nilai}
-              </div>
-
-              {/* Batang Grafik */}
-              <div
-                className="w-8 sm:w-12 bg-blue-500 hover:bg-blue-600 rounded-t transition-all duration-500 ease-out"
-                style={{ height: `${bar.persentase}%` }}
-              />
-
-              {/* Label Bulan */}
-              <span className="text-xs text-gray-400 mt-2 absolute top-full">{bar.name}</span>
-            </div>
-          ))}
-        </div>
-        <div className="h-4"></div> {/* Spacer bawah untuk label */}
-      </div>
+      Hallo
     </div>
   );
 }

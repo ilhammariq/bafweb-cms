@@ -4,7 +4,6 @@ import {
     Search,
     MapPin,
     Clock,
-    Users,
     CalendarX,
     Dumbbell,
     Palmtree,
@@ -14,98 +13,24 @@ import {
     Tag,
     Plus,
     Layers,
+    Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEvents } from '@/hooks/useEvent';
+import { useGeneralSetting } from '@/hooks/useGeneralSetting';
 
-const statusEvents = ['Upcoming', 'Ongoing', 'Past'];
-
-// Data event dengan multiple sessions
-const EVENTS = [
-    {
-        id: 1,
-        title: 'Inter-department Badminton Tournament',
-        category: 'Sports',
-        location: 'Senayan Sports Hall',
-        attendees: 32,
-        status: statusEvents[0],
-        sessions: [
-            { date: '2026-07-14', startTime: '09:00', endTime: '13:00' },
-            { date: '2026-07-15', startTime: '10:00', endTime: '14:00' },
-        ],
-    },
-    {
-        id: 2,
-        title: 'Weekend Ice Skating',
-        category: 'Travel & Leisure',
-        location: 'Ice Palace, Kelapa Gading',
-        attendees: 20,
-        status: statusEvents[0],
-        sessions: [
-            { date: '2026-07-19', startTime: '15:00', endTime: '17:00' },
-        ],
-    },
-    {
-        id: 3,
-        title: 'Bandung Weekend Trip',
-        category: 'Travel & Leisure',
-        location: 'Lembang, Bandung',
-        attendees: 45,
-        status: statusEvents[0],
-        sessions: [
-            { date: '2026-08-01', startTime: '06:00', endTime: '21:00' },
-        ],
-    },
-    {
-        id: 4,
-        title: 'Team Bonding Dinner',
-        category: 'Social',
-        location: 'Skye Restaurant',
-        attendees: 28,
-        status: statusEvents[1],
-        sessions: [
-            { date: '2026-07-11', startTime: '18:30', endTime: '21:00' },
-            { date: '2026-07-12', startTime: '19:00', endTime: '22:00' },
-        ],
-    },
-    {
-        id: 5,
-        title: 'Mount Bromo Hiking Trip',
-        category: 'Outdoor',
-        location: 'Mount Bromo, East Java',
-        attendees: 16,
-        status: statusEvents[1],
-        sessions: [
-            { date: '2026-08-15', startTime: '02:00', endTime: '18:00' },
-        ],
-    },
-    {
-        id: 6,
-        title: 'Friday Night Karaoke',
-        category: 'Entertainment',
-        location: 'Inul Vizta, Kemang',
-        attendees: 14,
-        status: statusEvents[2],
-        sessions: [
-            { date: '2026-06-27', startTime: '19:00', endTime: '22:00' },
-            { date: '2026-06-28', startTime: '20:00', endTime: '23:00' },
-            { date: '2026-06-29', startTime: '21:00', endTime: '00:00' },
-        ],
-    },
-];
-
-// Kategori (ikon & warna)
-const CATEGORY_CONFIG = {
-    Sports: { icon: Dumbbell, style: 'bg-purple-50 text-purple-700 ring-purple-600/20' },
-    'Travel & Leisure': { icon: Palmtree, style: 'bg-teal-50 text-teal-700 ring-teal-600/20' },
-    Social: { icon: PartyPopper, style: 'bg-amber-50 text-amber-700 ring-amber-600/20' },
-    Outdoor: { icon: Mountain, style: 'bg-green-50 text-green-700 ring-green-600/20' },
-    Entertainment: { icon: Music, style: 'bg-pink-50 text-pink-700 ring-pink-600/20' },
+// Ikon per kategori — key-nya harus sama dengan general_setting_code
+// (mis. SPORTS, OUTDOOR, SOCIAL, ENTERTAINMENT, TRAVEL_LEISURE)
+const CATEGORY_ICONS = {
+    SPORTS: Dumbbell,
+    TRAVEL_LEISURE: Palmtree,
+    SOCIAL: PartyPopper,
+    OUTDOOR: Mountain,
+    ENTERTAINMENT: Music,
 };
 
-const DEFAULT_CATEGORY_CONFIG = {
-    icon: Tag,
-    style: 'bg-gray-50 text-gray-700 ring-gray-500/20',
-};
+const DEFAULT_CATEGORY_ICON = Tag;
+const DEFAULT_CATEGORY_STYLE = 'bg-gray-50 text-gray-700 ring-gray-500/20';
 
 const STATUS_STYLES = {
     Upcoming: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
@@ -127,14 +52,38 @@ function getSessionDisplay(sessions) {
     if (!sessions || sessions.length === 0) return null;
     const first = sessions[0];
     const dateStr = formatDate(first.date);
-    const timeStr = `${first.startTime} - ${first.endTime}`;
+    const timeStr = first.endTime
+        ? `${first.startTime} - ${first.endTime}`
+        : `${first.startTime} - selesai`;
     const count = sessions.length;
     return { dateStr, timeStr, count };
 }
 
+function getEventStatus(sessions) {
+    if (!sessions || sessions.length === 0) return 'Upcoming';
+
+    const now = new Date();
+    let hasOngoing = false;
+    let hasUpcoming = false;
+
+    for (const s of sessions) {
+        const start = new Date(`${s.date}T${s.startTime || '00:00'}:00`);
+        const end = s.endTime
+            ? new Date(`${s.date}T${s.endTime}:00`)
+            : new Date(`${s.date}T23:59:00`);
+
+        if (start <= now && now <= end) hasOngoing = true;
+        else if (start > now) hasUpcoming = true;
+    }
+
+    if (hasOngoing) return 'Ongoing';
+    if (hasUpcoming) return 'Upcoming';
+    return 'Past';
+}
+
 function EventCard({ event }) {
-    const { icon: CategoryIcon, style: categoryStyle } =
-        CATEGORY_CONFIG[event.category] || DEFAULT_CATEGORY_CONFIG;
+    const CategoryIcon = CATEGORY_ICONS[event.categoryCode] || DEFAULT_CATEGORY_ICON;
+    const categoryStyle = event.categoryStyle || DEFAULT_CATEGORY_STYLE;
 
     const sessionInfo = getSessionDisplay(event.sessions);
 
@@ -206,10 +155,6 @@ function EventCard({ event }) {
                         <MapPin className="w-3.5 h-3.5" />
                         {event.location}
                     </span>
-                    <span className="inline-flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5" />
-                        {event.attendees} peserta
-                    </span>
                 </div>
             </div>
 
@@ -226,7 +171,30 @@ function EventCard({ event }) {
 export default function Event() {
     const [query, setQuery] = useState('');
 
-    const filteredEvents = EVENTS.filter((e) =>
+    const { data: rawEvents, isLoading, isError, error } = useEvents({ active: true });
+    const { data: categorySettings } = useGeneralSetting('CATEGORY_EVENT');
+    const { data: categoryColors } = useGeneralSetting('CATEGORY_COLOR');
+
+    // Mapping category_code -> label (mis. "SPORTS" -> "Sports")
+    const categoryLabel = (code) =>
+        categorySettings?.find((c) => c.code === code)?.desc || code;
+
+    // Mapping category_code -> class tailwind (mis. "SPORTS" -> "bg-purple-50 text-purple-700 ring-purple-600/20")
+    const categoryStyle = (code) =>
+        categoryColors?.find((c) => c.code === code)?.desc || DEFAULT_CATEGORY_STYLE;
+
+    const events = (rawEvents || []).map((e) => ({
+        id: e.id,
+        title: e.title,
+        categoryCode: e.categoryCode,
+        category: categoryLabel(e.categoryCode),
+        categoryStyle: categoryStyle(e.categoryCode),
+        location: e.location,
+        status: getEventStatus(e.sessions),
+        sessions: e.sessions,
+    }));
+
+    const filteredEvents = events.filter((e) =>
         e.title.toLowerCase().includes(query.toLowerCase())
     );
 
@@ -262,7 +230,18 @@ export default function Event() {
                 />
             </div>
 
-            {filteredEvents.length > 0 ? (
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center text-center py-16 border border-dashed border-gray-200 rounded-xl">
+                    <Loader2 className="w-6 h-6 text-gray-300 mb-3 animate-spin" />
+                    <p className="text-sm font-medium text-gray-700">Memuat event...</p>
+                </div>
+            ) : isError ? (
+                <div className="flex flex-col items-center justify-center text-center py-16 border border-dashed border-red-200 rounded-xl">
+                    <CalendarX className="w-8 h-8 text-red-300 mb-3" />
+                    <p className="text-sm font-medium text-red-600">Gagal memuat event.</p>
+                    <p className="text-xs text-gray-400 mt-1">{error?.message}</p>
+                </div>
+            ) : filteredEvents.length > 0 ? (
                 <div className="flex flex-col gap-3">
                     {filteredEvents.map((event) => (
                         <EventCard key={event.id} event={event} />
