@@ -1,11 +1,13 @@
 import { useForm, useStore } from '@tanstack/react-form'
 import { requiredField } from '../Form/Validator/Validator'
-import TextInput from '../Form/Fields/TextInput';
-import Select from '../Form/Fields/Select';
-import FormField from '../Form/Fields/FormField';
-// import { useCreateEvent } from '@/hooks/useEvent';
-import { useGeneralSetting } from '@/hooks/useGeneralSetting';
+import TextInput from '../Form/Fields/TextInput'
+import Select from '../Form/Fields/Select'
+import FormField from '../Form/Fields/FormField'
+import { PlusCircle, Trash2 } from 'lucide-react'
+// import { useCreateEvent } from '@/hooks/useEvent'
+import { useGeneralSetting } from '@/hooks/useGeneralSetting'
 
+// ===== Field statis (tanpa eventDate) =====
 const staticFields = [
     {
         name: 'eventTitle',
@@ -20,16 +22,9 @@ const staticFields = [
         component: Select,
         props: {
             placeholder: 'Pilih kategori...',
-            options: []
+            options: [],
         },
         validators: requiredField('Kategori'),
-    },
-    {
-        name: 'eventDate',
-        label: 'Tanggal Event',
-        component: TextInput,
-        props: { type: 'date' },
-        validators: requiredField('Tanggal Event'),
     },
     {
         name: 'location',
@@ -40,22 +35,25 @@ const staticFields = [
     },
 ]
 
+// ===== Sesi kosong (dengan date) =====
 const emptySession = () => ({
+    date: '',
     startTime: '',
     endTime: '',
     isOpenEnded: false,
 })
 
 export default function AddEvent() {
-    const { data: categorySettings, isLoading: isCategoryLoading } = useGeneralSetting('CATEGORY_EVENT');
-    const { data: statusSettings, isLoading: isStatusLoading } = useGeneralSetting('STATUS_EVENT');
-    // const { mutate: createEvent, isPending: isSubmitting } = useCreateEvent();
+    const { data: categorySettings, isLoading: isCategoryLoading } =
+        useGeneralSetting('CATEGORY_EVENT')
+    const { data: statusSettings, isLoading: isStatusLoading } =
+        useGeneralSetting('STATUS_EVENT')
+    // const { mutate: createEvent, isPending: isSubmitting } = useCreateEvent()
 
     const form = useForm({
         defaultValues: {
             eventTitle: '',
             categoryCode: '',
-            eventDate: '',
             location: '',
             sessions: [emptySession()],
         },
@@ -63,19 +61,16 @@ export default function AddEvent() {
             const payload = {
                 ...value,
                 sessions: value.sessions.map((session) => ({
+                    date: session.date,
                     startTime: session.startTime,
-                    endTime: session.isOpenEnded ? null : session.endTime,
+                    endTime: session.endTime,
                 })),
             }
-
-            createEvent(payload, {
-                onSuccess: () => {
-                    form.reset();
-                },
-                onError: (error) => {
-                    console.error(error.message);
-                },
-            });
+            console.log(payload)
+            // createEvent(payload, {
+            //   onSuccess: () => form.reset(),
+            //   onError: (error) => console.error(error.message),
+            // })
         },
     })
 
@@ -94,13 +89,16 @@ export default function AddEvent() {
                 }}
                 className="max-w-md w-full space-y-5"
             >
+                {/* Field statis */}
                 {staticFields.map(({ name, label, component: Component, props, validators }) => {
-                    let dynamicProps = props;
-
+                    let dynamicProps = props
                     if (name === 'categoryCode') {
-                        dynamicProps = { ...props, options: categoryOptions, disabled: isCategoryLoading };
+                        dynamicProps = {
+                            ...props,
+                            options: categoryOptions,
+                            disabled: isCategoryLoading,
+                        }
                     }
-
                     return (
                         <FormField
                             key={name}
@@ -114,17 +112,21 @@ export default function AddEvent() {
                     )
                 })}
 
+                {/* ===== Sesi (array) ===== */}
                 <form.Field name="sessions" mode="array">
                     {(sessionsField) => (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <label className="text-sm font-medium text-gray-700">Sesi Waktu</label>
+                                <label className="text-sm font-medium text-gray-700">
+                                    Sesi Waktu
+                                </label>
                                 <button
                                     type="button"
                                     onClick={() => sessionsField.pushValue(emptySession())}
-                                    className="text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
                                 >
-                                    + Tambah Sesi
+                                    <PlusCircle className="w-5 h-5" />
+                                    Tambah Sesi
                                 </button>
                             </div>
 
@@ -141,12 +143,12 @@ export default function AddEvent() {
                     )}
                 </form.Field>
 
+                {/* Tombol Submit */}
                 <button
                     type="submit"
                     // disabled={isCategoryLoading || isStatusLoading || isSubmitting}
                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {/* {isSubmitting ? 'Menyimpan...' : 'Simpan'} */}
                     Simpan
                 </button>
             </form>
@@ -154,6 +156,9 @@ export default function AddEvent() {
     )
 }
 
+// ============================================================
+// Komponen baris sesi (dengan UI yang ditingkatkan)
+// ============================================================
 function SessionRow({ form, index, onRemove, canRemove }) {
     const isOpenEnded = useStore(
         form.store,
@@ -161,20 +166,35 @@ function SessionRow({ form, index, onRemove, canRemove }) {
     )
 
     return (
-        <div className="border border-gray-200 rounded-lg p-4 space-y-3">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4 transition-all hover:shadow-md">
+            {/* Header */}
             <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-gray-500">Sesi {index + 1}</span>
+                <span className="text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                    Sesi {index + 1}
+                </span>
                 {canRemove && (
                     <button
                         type="button"
                         onClick={onRemove}
-                        className="text-xs text-red-500 hover:text-red-600 cursor-pointer"
+                        className="text-red-400 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-red-50"
+                        aria-label="Hapus sesi"
                     >
-                        Hapus
+                        <Trash2 className="w-4 h-4" />
                     </button>
                 )}
             </div>
 
+            {/* Tanggal */}
+            <FormField
+                form={form}
+                name={`sessions[${index}].date`}
+                label="Tanggal Sesi"
+                validators={requiredField('Tanggal Sesi')}
+            >
+                <TextInput type="date"/>
+            </FormField>
+
+            {/* Waktu Mulai & Selesai */}
             <div className="grid grid-cols-2 gap-3">
                 <FormField
                     form={form}
@@ -189,15 +209,18 @@ function SessionRow({ form, index, onRemove, canRemove }) {
                     form={form}
                     name={`sessions[${index}].endTime`}
                     label="Waktu Selesai"
-                    validators={isOpenEnded ? undefined : requiredField('Waktu Selesai')}
                 >
-                    <TextInput type="time" disabled={isOpenEnded} />
+                    <TextInput
+                        type="time"
+                        disabled={isOpenEnded}
+                    />
                 </FormField>
             </div>
 
+            {/* Checkbox "Sampai selesai" */}
             <form.Field name={`sessions[${index}].isOpenEnded`}>
                 {(field) => (
-                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer select-none pt-1">
                         <input
                             type="checkbox"
                             checked={field.state.value}
@@ -207,9 +230,9 @@ function SessionRow({ form, index, onRemove, canRemove }) {
                                     form.setFieldValue(`sessions[${index}].endTime`, '')
                                 }
                             }}
-                            className="w-4 h-4 accent-blue-600 cursor-pointer"
+                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                         />
-                        Sampai selesai
+                        <span>Sampai selesai (tidak ada batas waktu)</span>
                     </label>
                 )}
             </form.Field>

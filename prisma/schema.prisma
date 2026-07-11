@@ -82,6 +82,7 @@ model general_setting {
 model events {
   id            String          @id @db.Uuid
   event_title   String          @db.VarChar(255)
+  event_desc    String?           
   category_code String          @db.VarChar(25)
   location      String          @db.VarChar(255)
   latitude      Decimal?        @db.Decimal(9, 6)
