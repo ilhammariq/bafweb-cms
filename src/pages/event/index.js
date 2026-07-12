@@ -1,7 +1,12 @@
 import Event from "@/components/Event";
+import { withProtectedPage } from "@/lib/withProtectedPage";
 
-export default function Index() {
+function Index() {
     return (
         <Event />
     )
 }
+
+const { Page, getServerSideProps } = withProtectedPage(Index);
+export default Page;
+export { getServerSideProps };

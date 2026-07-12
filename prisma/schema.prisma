@@ -33,6 +33,7 @@ model members {
   role          String          @db.VarChar(25)
   avatar_index  Int?
   teams_members teams_members[]
+  user_access   user_access?
 }
 
 model teams_members {
@@ -109,4 +110,21 @@ model event_sessions {
   dtm_upd    DateTime @default(now()) @updatedAt @db.Timestamp(6)
 
   event      events   @relation(fields: [event_id], references: [id], onDelete: Cascade)
+}
+
+model user_access {
+  id                String    @id @db.Uuid
+  member_id         String    @db.Uuid
+  password          String    @db.VarChar(255)
+  role_access       String    @db.VarChar(25)
+  last_login        DateTime? @db.Timestamp(6)
+  is_active         Boolean?  @default(true)
+  usr_crt           String?   @db.Uuid
+  usr_upd           String?   @db.Uuid
+  dtm_crt           DateTime  @default(now()) @db.Timestamp(6)
+  dtm_upd           DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  member            members   @relation(fields: [member_id], references: [id])
+
+  @@unique([member_id])
 }

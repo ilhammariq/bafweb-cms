@@ -80,3 +80,22 @@ export function useCreateMember() {
         },
     });
 }
+
+async function fetchMemberById(id) {
+    const res = await fetch(`/api/members/${id}`);
+
+    if (!res.ok) {
+        throw new Error('Gagal mengambil data member');
+    }
+
+    return res.json();
+}
+
+export function useMemberById(id) {
+    return useQuery({
+        queryKey: ['members', id],
+        queryFn: () => fetchMemberById(id),
+        enabled: Boolean(id),
+        staleTime: 5 * 60 * 1000,
+    });
+}

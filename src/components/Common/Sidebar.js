@@ -6,7 +6,7 @@ import { LayoutDashboard, User, Users, Calendar, CalendarDays } from 'lucide-rea
 const NAVIGATION_MENU = [
     {
         name: 'Dashboard',
-        href: '/',
+        href: '/dashboard',
         icon: <LayoutDashboard className="w-5 h-5" />,
     },
     {
