@@ -1,4 +1,3 @@
-// hooks/useLogin.js
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 

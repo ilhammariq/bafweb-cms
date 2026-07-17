@@ -7,7 +7,6 @@ import { PlusCircle, Trash2 } from 'lucide-react'
 import { useCreateEvent } from '@/hooks/useEvent'
 import { useGeneralSetting } from '@/hooks/useGeneralSetting'
 
-// ===== Field statis (tanpa eventDate) =====
 const staticFields = [
     {
         name: 'eventTitle',
@@ -35,7 +34,6 @@ const staticFields = [
     },
 ]
 
-// ===== Sesi kosong (dengan date) =====
 const emptySession = () => ({
     eventDate: '',
     startTime: '',
@@ -154,9 +152,7 @@ export default function AddEvent() {
     )
 }
 
-// ============================================================
-// Komponen baris sesi (dengan UI yang ditingkatkan)
-// ============================================================
+
 function SessionRow({ form, index, onRemove, canRemove }) {
     const isOpenEnded = useStore(
         form.store,

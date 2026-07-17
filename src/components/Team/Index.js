@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react'
-import { Search, Plus, Users, MoreVertical, X, AlertTriangle } from 'lucide-react'
+import { useState } from 'react'
+import { Search, Plus, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarStack } from '@/components/Common/Avatar';
 import { StatusBadge } from '@/components/Common/Badge';
 import ActionsMenu from '@/components/Common/ActionMenu';
 import { useAddMemberTeam, useTeams } from '@/hooks/useTeam';
 import { useSearchMembers } from '@/hooks/useMember';
+import { useAuth } from '@/contexts/AuthProvider';
 
-function TeamCard({ team, onAddMember }) {
+function TeamCard({ team, onAddMember, user }) {
     return (
         <div className="group bg-white border border-slate-200 rounded-2xl p-5 hover:border-teal-300 hover:shadow-lg hover:shadow-slate-100 transition-all">
             <div className="flex items-start justify-between">
@@ -25,14 +26,16 @@ function TeamCard({ team, onAddMember }) {
             <div className="flex items-center justify-between mt-5">
                 <div className="flex items-center">
                     <AvatarStack members={team.members} />
-                    <button
-                        type="button"
-                        onClick={() => onAddMember(team)}
-                        title="Tambah anggota"
-                        className="flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-colors cursor-pointer"
-                    >
-                        <Plus size={14} />
-                    </button>
+                    {user?.role == 'ADMIN' &&
+                        <button
+                            type="button"
+                            onClick={() => onAddMember(team)}
+                            title="Tambah anggota"
+                            className="flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-colors cursor-pointer"
+                        >
+                            <Plus size={14} />
+                        </button>
+                    }
                 </div>
                 <StatusBadge status={team.status} />
             </div>
@@ -225,6 +228,7 @@ function AddMemberModal({ team, onClose }) {
 
 export default function Team() {
     const { data: teams = [], isLoading, error, refetch } = useTeams();
+    const { data: user } = useAuth();
     const [query, setQuery] = useState("");
     const [addMemberTeam, setAddMemberTeam] = useState(null)
 
@@ -241,13 +245,14 @@ export default function Team() {
                         Kelola tim dan anggota tim di satu tempat
                     </p>
                 </div>
-                <Link
+                {user?.role == 'ADMIN' && <Link
                     href="/team/add"
                     className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm"
                 >
                     <Plus size={18} />
                     Add Team
                 </Link>
+                }
             </div>
 
             <div className="relative mb-6">
@@ -281,7 +286,7 @@ export default function Team() {
             ) : filteredTeams.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filteredTeams.map((team) => (
-                        <TeamCard key={team.id} team={team} onAddMember={setAddMemberTeam} />
+                        <TeamCard key={team.id} team={team} user={user} onAddMember={setAddMemberTeam} />
                     ))}
                 </div>
             ) : (

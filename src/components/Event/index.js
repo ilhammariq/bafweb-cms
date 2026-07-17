@@ -18,9 +18,9 @@ import {
 import Link from 'next/link';
 import { useEvents } from '@/hooks/useEvent';
 import { useGeneralSetting } from '@/hooks/useGeneralSetting';
+import { useAuth } from '@/contexts/AuthProvider';
 
-// Ikon per kategori — key-nya harus sama dengan general_setting_code
-// (mis. SPORTS, OUTDOOR, SOCIAL, ENTERTAINMENT, TRAVEL_LEISURE)
+
 const CATEGORY_ICONS = {
     SPORTS: Dumbbell,
     TRAVEL_LEISURE: Palmtree,
@@ -174,12 +174,11 @@ export default function Event() {
     const { data: rawEvents, isLoading, isError, error } = useEvents({ active: true });
     const { data: categorySettings } = useGeneralSetting('CATEGORY_EVENT');
     const { data: categoryColors } = useGeneralSetting('CATEGORY_COLOR');
+    const { data: user } = useAuth();
 
-    // Mapping category_code -> label (mis. "SPORTS" -> "Sports")
     const categoryLabel = (code) =>
         categorySettings?.find((c) => c.code === code)?.desc || code;
 
-    // Mapping category_code -> class tailwind (mis. "SPORTS" -> "bg-purple-50 text-purple-700 ring-purple-600/20")
     const categoryStyle = (code) =>
         categoryColors?.find((c) => c.code === code)?.desc || DEFAULT_CATEGORY_STYLE;
 

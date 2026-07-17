@@ -10,6 +10,6 @@ function Index() {
     )
 }
 
-const { Page, getServerSideProps } = withProtectedPage(Index);
+const { Page, getServerSideProps } = withProtectedPage(Index, ['ADMIN']);
 export default Page;
 export { getServerSideProps };

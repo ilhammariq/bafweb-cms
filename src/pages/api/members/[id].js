@@ -49,7 +49,6 @@ async function getMember(req, res, id) {
     }
 }
 
-// Helper format tanggal
 function formatDate(date) {
     const bulan = [
         "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",

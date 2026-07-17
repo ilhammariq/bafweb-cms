@@ -7,7 +7,6 @@ const getInitials = (name) => {
 }
 
 export function Avatar({ name, avatar, avatarIndex }) {
-    console.log(name);
     return (
         <div
             title={name}

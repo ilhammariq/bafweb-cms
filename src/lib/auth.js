@@ -3,7 +3,7 @@ import * as cookie from "cookie";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const COOKIE_NAME = 'auth_token';
-const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 hari
+const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 if (!JWT_SECRET) {
     console.warn('[auth] JWT_SECRET belum di-set di environment variables.');

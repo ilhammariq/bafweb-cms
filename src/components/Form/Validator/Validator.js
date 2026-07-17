@@ -37,6 +37,5 @@ export const onChangeValidator = (...validators) => ({
     onChange: ({ value }) => combine(...validators)(value),
 })
 
-// Khusus field wajib. Bisa ditambah validator lain kalau perlu.
 export const requiredField = (label, ...extraValidators) =>
     onChangeValidator(required(`${label} wajib diisi`), ...extraValidators)

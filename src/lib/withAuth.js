@@ -1,7 +1,6 @@
 import { getAuthUser } from './auth';
 
-
-export function  withAuth() {
+export function withAuth(allowedRoles) {
     return async (context) => {
         const user = getAuthUser(context.req);
 
@@ -14,6 +13,15 @@ export function  withAuth() {
             };
         }
 
-        return { props: {} };
+        if (allowedRoles && !allowedRoles.includes(user.role)) {
+            return {
+                redirect: {
+                    destination: '/403',
+                    permanent: false,
+                },
+            };
+        }
+
+        return { props: { user } };
     };
 }

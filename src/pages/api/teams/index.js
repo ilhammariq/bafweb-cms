@@ -76,7 +76,6 @@ export default async function handler(req, res) {
     res.status(405).end(`Method ${req.method} Not Allowed`);
 }
 
-// Helper untuk format tanggal ke "12 Jun 2026"
 function formatDate(date) {
     const bulan = [
         'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',

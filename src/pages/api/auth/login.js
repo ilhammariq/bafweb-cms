@@ -27,8 +27,6 @@ export default async function handler(req, res) {
             return invalidCredentials();
         }
 
-        console.log(member.user_access.is_active);
-
         if (!member.user_access.is_active) {
             return res.status(403).json({ message: 'Akun tidak aktif. Hubungi admin.' });
         }
@@ -47,7 +45,6 @@ export default async function handler(req, res) {
 
         setAuthCookie(res, token);
 
-        // Fire-and-forget update last_login, tidak perlu diblok response-nya
         prisma.user_access
             .update({
                 where: { member_id: member.id },

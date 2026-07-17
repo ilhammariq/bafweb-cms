@@ -120,7 +120,7 @@ function formatDate(date) {
 
 function toTimeValue(time) {
     if (!time) return null;
-    return new Date(`1970-01-01T${time}:00Z`);   // <-- ditambah Z
+    return new Date(`1970-01-01T${time}:00Z`);
 }
 
 function formatTime(date) {

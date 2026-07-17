@@ -5,11 +5,12 @@ import { useState } from "react";
 import { Avatar } from "../Common/Avatar";
 import { StatusBadge } from "../Common/Badge";
 import ActionsMenu from "../Common/ActionMenu";
-import { toTitleCase } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export default function Member() {
     const { data: members = [], isLoading, error, refetch } = useMembers();
     const [query, setQuery] = useState("");
+    const { data: user } = useAuth();
 
     const filteredMembers = members.filter(
         (member) =>
@@ -26,13 +27,15 @@ export default function Member() {
                         Kelola anggota dan peran mereka di setiap tim
                     </p>
                 </div>
-                <Link
-                    href="/member/add"
-                    className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm"
-                >
-                    <Plus size={18} />
-                    Add Member
-                </Link>
+                {user?.role == 'ADMIN' &&
+                    <Link
+                        href="/member/add"
+                        className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors shadow-sm"
+                    >
+                        <Plus size={18} />
+                        Add Member
+                    </Link>
+                }
             </div>
 
             <div className="relative mb-6">
