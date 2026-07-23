@@ -3,6 +3,11 @@ import prisma from '@/lib/prisma';
 import { signToken, setAuthCookie } from '@/lib/auth';
 
 export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return 
+    }
+
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).json({ message: 'Method not allowed.' });
@@ -58,6 +63,7 @@ export default async function handler(req, res) {
                 name: member.member_name,
                 email: member.member_email,
             },
+            token
         });
     } catch (err) {
         console.error('Login error:', err);

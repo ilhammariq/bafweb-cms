@@ -34,6 +34,7 @@ model members {
   avatar_index  Int?
   teams_members teams_members[]
   user_access   user_access?
+  event_participants  event_participants[]
 }
 
 model teams_members {
@@ -95,6 +96,7 @@ model events {
   dtm_upd       DateTime        @default(now()) @updatedAt @db.Timestamp(6)
 
   event_sessions event_sessions[]
+  event_participants  event_participants[]
 }
 
 model event_sessions {
@@ -127,4 +129,21 @@ model user_access {
   member            members   @relation(fields: [member_id], references: [id])
 
   @@unique([member_id])
+}
+
+model event_participants {
+  id         String   @id @db.Uuid
+  event_id   String   @db.Uuid
+  member_id  String   @db.Uuid
+  status_code String   @db.VarChar(25)
+  is_active  Boolean? @default(true)
+  usr_crt    String?  @db.Uuid
+  usr_upd    String?  @db.Uuid
+  dtm_crt    DateTime @default(now()) @db.Timestamp(6)
+  dtm_upd    DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  event      events   @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  member     members  @relation(fields: [member_id], references: [id], onDelete: Cascade)
+
+  @@unique([event_id, member_id])
 }

@@ -20,8 +20,14 @@ export default async function handler(req, res) {
                             event_date: 'asc',
                         },
                     },
+                    event_participants: {
+                        include: {
+                            member: true,
+                        },
+                    },
                 },
             });
+
 
             const formattedEvents = events.map((item) => ({
                 id: item.id,
@@ -38,6 +44,17 @@ export default async function handler(req, res) {
                     startTime: formatTime(session.start_time),
                     endTime: formatTime(session.end_time),
                     isActive: session.is_active,
+                })),
+                participants: item.event_participants.map((participant) => ({
+                    id: participant.id,
+                    eventId: participant.event_id,
+                    memberId: participant.member_id,
+                    statusCode: participant.status_code,
+                    member: participant.member && {
+                        id: participant.member.id,
+                        name: participant.member.member_name,
+                        avatar: participant.member.avatar,
+                        avatarIndex: participant.member.avatar_index,},
                 })),
                 createdAt: formatDate(item.dtm_crt),
                 updatedAt: formatDate(item.dtm_upd),
